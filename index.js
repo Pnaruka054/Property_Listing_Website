@@ -6,8 +6,8 @@ const cloudinary = require('cloudinary')
 const multer = require('multer')
 const fs = require('fs');
 const path = require('path')
-const PORT = process.env.PORT || 8000
 require('dotenv').config()
+const PORT = process.env.PORT || 8000
 
 mongoose.set('strictQuery', false);
 
