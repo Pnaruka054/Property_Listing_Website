@@ -50,16 +50,16 @@ app.use(cors())
 // All CRUD Operations
 
 // Serve static files
-app.use(express.static(path.resolve(__dirname, 'build')));
+// app.use(express.static(path.resolve(__dirname, 'build')));
 
-// All CRUD Operations
-app.get('/', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
-});
+// // All CRUD Operations
+// app.get('/', (req, res) => {
+//     res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
+// });
 
-app.get('/admin', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
-});
+// app.get('/admin', (req, res) => {
+//     res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
+// });
 
 app.get('/get', async (req, res) => {
     try {
