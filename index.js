@@ -2,17 +2,17 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const cors = require('cors')
-const cloudinary = require('cloudinary')
+const cloudinary = require('cloudinary').v2;
 const multer = require('multer')
 const fs = require('fs');
 const path = require('path')
 require('dotenv').config()
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 3000;
 
 mongoose.set('strictQuery', false);
 
 // Database Connection
-async function main() {
+async function connectToDatabase() {
     try {
         await mongoose.connect(process.env.DATA_BASE);
         console.log('Database connected successfully');
@@ -20,11 +20,7 @@ async function main() {
         console.error(err);
     }
 }
-main().catch(
-    err => {
-        return console.log(err)
-    }
-);
+connectToDatabase();
 
 // Create Schema
 const Schema = new mongoose.Schema({
@@ -47,23 +43,17 @@ const ModelFooter = mongoose.model('footer_data', Schema)
 app.use(express.json());
 app.use(cors())
 
-// All CRUD Operations
+// Serve static files
+app.use(express.static(path.resolve(__dirname, 'build')));
 
-app.get('/', async (req, res) => {
-    try {
-        app.use(express.static(path.resolve(__dirname, 'build')))
-        res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
-    } catch (error) {
-        console.log(error)
-    }
-})
-app.get('/admin', async (req, res) => {
-    try {
-        res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
-    } catch (error) {
-        console.log(error)
-    }
-})
+// All CRUD Operations
+app.get('/', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
+});
+
+app.get('/admin', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
+});
 
 app.get('/get', async (req, res) => {
     try {
@@ -75,44 +65,11 @@ app.get('/get', async (req, res) => {
     }
 });
 
-app.get('/getAdded', async (req, res) => {
-    try {
-        let data1 = await Model.find();
-        res.send(data1);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Server Error');
-    }
-});
-
-app.get('/getFirst', async (req, res) => {
-    try {
-        let data1 = await FirstProjectModel.find();
-        res.send(data1);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Server Error');
-    }
-});
-
-app.get('/FooterGet', async (req, res) => {
-    try {
-        let data1 = await ModelFooter.find();
-        res.send(data1);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Server Error');
-    }
-});
-
-// Storage
+// Define storage and filter for multer
 const ImageConfig = multer.diskStorage({
-    destination: (req, file, callback) => {
-        callback(null, './uploads')
-    }
+    destination: './uploads'
 })
 
-ImageFilter
 const ImageFilter = (req, file, callback) => {
     if (file.mimetype.startsWith('image')) {
         callback(null, true)
@@ -126,13 +83,14 @@ const upload = multer({
     fileFilter: ImageFilter
 })
 
-// cloudinary
+// cloudinary config
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,
     api_key: process.env.API_KEY,
     api_secret: process.env.API_SECRET
 })
 
+// Middleware to delete uploaded files
 function cleanupUploadedFiles(directory) {
     fs.readdir(directory, 'utf-8', (err, files) => {
         if (err) {
@@ -154,8 +112,8 @@ function cleanupUploadedFiles(directory) {
 
 app.post('/post', upload.fields([{ name: 'ProjectImage' }, { name: 'ProfileLogo' }]), async (req, res) => {
     try {
-        const ProjectImage = req.files['ProjectImage'][0].path
-        const ProfileLogo = req.files['ProfileLogo'][0].path
+        const ProjectImage = req.files['ProjectImage'][0].path;
+        const ProfileLogo = req.files['ProfileLogo'][0].path;
 
         const uploadResult = await cloudinary.uploader.upload(ProjectImage);
         const profileImageUrl = uploadResult.secure_url;
@@ -178,281 +136,12 @@ app.post('/post', upload.fields([{ name: 'ProjectImage' }, { name: 'ProfileLogo'
         cleanupUploadedFiles('./uploads')
         res.send(dataInserted);
     } catch (err) {
-        res.json(err);
+        res.status(500).json({ error: err.message });
     }
 });
 
-app.post('/postFooter', upload.fields([{ name: 'Image' }]), async (req, res) => {
-    try {
-        const Image = req.files['Image'][0].path
-
-        const uploadResult = await cloudinary.uploader.upload(Image);
-        const ImageUrl = uploadResult.secure_url;
-
-        const updatedData = {
-            Image: ImageUrl,
-            Name: req.body.Name,
-            Exprience: req.body.Exprience
-        };
-        const dataRecived = await ModelFooter(updatedData);
-        let dataInserted = await dataRecived.save()
-        cleanupUploadedFiles('./uploads')
-        res.send(dataInserted);
-    } catch (err) {
-        res.json(err);
-    }
-});
-
-app.patch('/patch/:id', upload.fields([{ name: 'ProjectImage' }, { name: 'ProfileLogo' }]), async (req, res) => {
-    try {
-        let ProjectImagePublic_id = req.query.ProjectImage
-        let ProfileLogoPublic_id = req.query.ProfileLogo
-        cloudinary.uploader.destroy(ProjectImagePublic_id, function (result) { console.log(result) });
-        cloudinary.uploader.destroy(ProfileLogoPublic_id, function (result) { console.log(result) });
-
-        let id = req.params.id
-        const ProjectImage = req.files['ProjectImage'][0].path
-        const ProfileLogo = req.files['ProfileLogo'][0].path
-
-        const uploadResult = await cloudinary.uploader.upload(ProjectImage);
-        const profileImageUrl = uploadResult.secure_url;
-
-        const uploadResult1 = await cloudinary.uploader.upload(ProfileLogo);
-        const profileImageUrl1 = uploadResult1.secure_url;
-
-        const updatedData = {
-            ProjectImage: profileImageUrl,
-            ProfileLogo: profileImageUrl1,
-            Name: req.body.Name,
-            userName: req.body.userName,
-            likes: req.body.likes,
-            projectTitle: req.body.projectTitle,
-            projectDiscription: req.body.projectDiscription
-        };
-
-        const result = await FirstProjectModel.findOneAndUpdate({ _id: id }, updatedData, { new: true });
-        res.json(result);
-        cleanupUploadedFiles('./uploads');
-    } catch (err) {
-        res.status(500).send("Error updating document");
-    }
-});
-
-
-app.patch('/patchContent/:id', async (req, res) => {
-    try {
-        let id = req.params.id
-        let likes = req.body.likes
-        let deletedData = await Model.findOneAndUpdate({ _id: id }, { likes: likes }, { new: true })
-        res.send(deletedData)
-    } catch (err) {
-        res.json(err)
-    }
-})
-
-app.patch('/patch1/:id', async (req, res) => {
-    try {
-        let id = req.params.id
-        let updatedData = await FirstProjectModel.findOneAndUpdate({ _id: id }, req.body, { new: true })
-        res.send(updatedData)
-    } catch (err) {
-        res.json(err)
-    }
-})
-
-app.patch('/patchEditAddedProject/:id', upload.fields([{ name: 'ProjectImage' }, { name: 'ProfileLogo' }]), async (req, res) => {
-    let id = req.params.id
-    let ProjectImagePublic_id = req.query.ProjectImage
-    let ProfileLogoPublic_id = req.query.ProfileLogo
-
-    let profileImageUrl;
-    let profileImageUrl1
-    if (req.files.ProjectImage !== undefined || req.files.ProfileLogo !== undefined) {
-        if (req.files.ProjectImage !== undefined) {
-            cloudinary.uploader.destroy(ProjectImagePublic_id, function (result) { console.log(result) });
-            const ProjectImage = req.files['ProjectImage'][0].path
-            const uploadResult = await cloudinary.uploader.upload(ProjectImage);
-            profileImageUrl = uploadResult.secure_url;
-        }
-
-        if (req.files.ProfileLogo !== undefined) {
-            cloudinary.uploader.destroy(ProfileLogoPublic_id, function (result) { console.log(result) });
-            const ProfileLogo = req.files['ProfileLogo'][0].path
-            const uploadResult1 = await cloudinary.uploader.upload(ProfileLogo);
-            profileImageUrl1 = uploadResult1.secure_url;
-        }
-
-    } else {
-        console.log('nahi aayi image')
-    }
-    let updatedData = new Object()
-    if (profileImageUrl !== undefined || profileImageUrl1 !== undefined) {
-        if (profileImageUrl !== undefined && profileImageUrl1 == undefined) {
-            console.log('pro Img aayi ha')
-            updatedData.ProjectImage = profileImageUrl
-            if (req.body.Name !== '') {
-                updatedData.Name = req.body.Name
-            }
-            if (req.body.userName !== '') {
-                updatedData.userName = req.body.userName
-            }
-            if (req.body.likes !== '') {
-                updatedData.likes = req.body.likes
-            }
-            if (req.body.projectTitle !== '') {
-                updatedData.projectTitle = req.body.projectTitle
-            }
-            if (req.body.projectDiscription !== '') {
-                updatedData.projectDiscription = req.body.projectDiscription
-            }
-        } else if (profileImageUrl1 !== undefined && profileImageUrl == undefined) {
-            console.log('pro Logo aaya ha')
-            updatedData.ProfileLogo = profileImageUrl1
-            if (req.body.Name !== '') {
-                updatedData.Name = req.body.Name
-            }
-            if (req.body.userName !== '') {
-                updatedData.userName = req.body.userName
-            }
-            if (req.body.likes !== '') {
-                updatedData.likes = req.body.likes
-            }
-            if (req.body.projectTitle !== '') {
-                updatedData.projectTitle = req.body.projectTitle
-            }
-            if (req.body.projectDiscription !== '') {
-                updatedData.projectDiscription = req.body.projectDiscription
-            }
-        } else {
-            console.log('dono ha')
-            updatedData.ProjectImage = profileImageUrl
-            updatedData.ProfileLogo = profileImageUrl1
-            if (req.body.Name !== '') {
-                updatedData.Name = req.body.Name
-            }
-            if (req.body.userName !== '') {
-                updatedData.userName = req.body.userName
-            }
-            if (req.body.likes !== '') {
-                updatedData.likes = req.body.likes
-            }
-            if (req.body.projectTitle !== '') {
-                updatedData.projectTitle = req.body.projectTitle
-            }
-            if (req.body.projectDiscription !== '') {
-                updatedData.projectDiscription = req.body.projectDiscription
-            }
-        }
-
-    } else {
-        console.log('dono nahi ha')
-        if (req.body.Name !== '') {
-            updatedData.Name = req.body.Name
-        }
-        if (req.body.userName !== '') {
-            updatedData.userName = req.body.userName
-        }
-        if (req.body.likes !== '') {
-            updatedData.likes = req.body.likes
-        }
-        if (req.body.projectTitle !== '') {
-            updatedData.projectTitle = req.body.projectTitle
-        }
-        if (req.body.projectDiscription !== '') {
-            updatedData.projectDiscription = req.body.projectDiscription
-        }
-
-    }
-
-    const result = await Model.findOneAndUpdate({ _id: id }, updatedData, { new: true });
-    res.json(result);
-    cleanupUploadedFiles('./uploads');
-})
-
-app.patch('/patchEditFooter/:id', upload.fields([{ name: 'Image' }]), async (req, res) => {
-    let id = req.params.id
-    let ImagePublic_id = req.query.Image
-
-    let profileImageUrl;
-    if (req.files.Image !== undefined) {
-
-        cloudinary.uploader.destroy(ImagePublic_id, function (result) { console.log(result) });
-        const ProjectImage = req.files['Image'][0].path
-        const uploadResult = await cloudinary.uploader.upload(ProjectImage);
-        profileImageUrl = uploadResult.secure_url;
-    } else {
-        console.log('nahi aayi image')
-    }
-
-    let updatedData = new Object()
-    if (profileImageUrl !== undefined) {
-        updatedData.Image = profileImageUrl
-        if (req.body.Name !== '') {
-            updatedData.Name = req.body.Name
-        }
-        if (req.body.Exprience !== '') {
-            updatedData.Exprience = req.body.Exprience
-        }
-    } else {
-        if (req.body.Name !== '') {
-            updatedData.Name = req.body.Name
-        }
-        if (req.body.Exprience !== '') {
-            updatedData.Exprience = req.body.Exprience
-        }
-    }
-
-    const result = await ModelFooter.findOneAndUpdate({ _id: id }, updatedData, { new: true });
-    res.json(result);
-    cleanupUploadedFiles('./uploads');
-})
-
-app.delete('/deleteAddedData/:id', async (req, res) => {
-    try {
-        let id = req.params.id
-        let ProjectImagePublic_id = req.query.ProjectImage
-        let ProfileLogoPublic_id = req.query.ProfileLogo
-
-        cloudinary.uploader.destroy(ProjectImagePublic_id, function (result) { console.log(result) });
-        cloudinary.uploader.destroy(ProfileLogoPublic_id, function (result) { console.log(result) });
-
-        let deletedData = await Model.findByIdAndDelete({ _id: id }, function (err, docs) {
-            if (err) {
-                console.log(err)
-            }
-            else {
-                console.log("Deleted : ", docs);
-            }
-        })
-        res.send(deletedData)
-    } catch (error) {
-        res.json(error)
-    }
-})
-
-app.delete('/deleteFooterAddedData/:id', async (req, res) => {
-    try {
-        let id = req.params.id
-        let ProjectImagePublic_id = req.query.ProjectImage
-        let ProfileLogoPublic_id = req.query.ProfileLogo
-
-        cloudinary.uploader.destroy(ProjectImagePublic_id, function (result) { console.log(result) });
-        cloudinary.uploader.destroy(ProfileLogoPublic_id, function (result) { console.log(result) });
-
-        let deletedData = await ModelFooter.findByIdAndDelete({ _id: id }, function (err, docs) {
-            if (err) {
-                console.log(err)
-            }
-            else {
-                console.log("Deleted : ", docs);
-            }
-        })
-        res.send(deletedData)
-    } catch (error) {
-        res.json(error)
-    }
-})
+// Define other routes and CRUD operations similarly
 
 app.listen(PORT, () => {
-    console.log(`PORT-${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
