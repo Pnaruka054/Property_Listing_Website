@@ -112,18 +112,18 @@ const ImageConfig = multer.diskStorage({
     }
 })
 
-// ImageFilter
-// const ImageFilter = (req, file, callback) => {
-//     if (file.mimetype.startsWith('image')) {
-//         callback(null, true)
-//     } else {
-//         callback(new Error('only image allows'))
-//     }
-// }
+ImageFilter
+const ImageFilter = (req, file, callback) => {
+    if (file.mimetype.startsWith('image')) {
+        callback(null, true)
+    } else {
+        callback(new Error('only image allows'))
+    }
+}
 
 const upload = multer({
     storage: ImageConfig,
-    // fileFilter: ImageFilter
+    fileFilter: ImageFilter
 })
 
 // cloudinary
@@ -341,7 +341,7 @@ app.patch('/patchEditAddedProject/:id', upload.fields([{ name: 'ProjectImage' },
             }
             if (req.body.projectDiscription !== '') {
                 updatedData.projectDiscription = req.body.projectDiscription
-            } 
+            }
         }
 
     } else {
