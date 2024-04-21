@@ -49,7 +49,7 @@ app.use(cors())
 
 // All CRUD Operations
 
-app.get('/*', async (req, res) => {
+app.get('/', async (req, res) => {
     try {
         app.use(express.static(path.resolve(__dirname, 'build')))
         res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
@@ -57,13 +57,13 @@ app.get('/*', async (req, res) => {
         console.log(error)
     }
 })
-// app.get('/admin', async (req, res) => {
-//     try {
-//         res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
-//     } catch (error) {
-//         console.log(error)
-//     }
-// })
+app.get('/admin', async (req, res) => {
+    try {
+        res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
+    } catch (error) {
+        console.log(error)
+    }
+})
 
 app.get('/get', async (req, res) => {
     try {
@@ -341,7 +341,7 @@ app.patch('/patchEditAddedProject/:id', upload.fields([{ name: 'ProjectImage' },
             }
             if (req.body.projectDiscription !== '') {
                 updatedData.projectDiscription = req.body.projectDiscription
-            }
+            } 
         }
 
     } else {
@@ -454,5 +454,5 @@ app.delete('/deleteFooterAddedData/:id', async (req, res) => {
 })
 
 app.listen(PORT, () => {
-    console.log('Server started on port 8000');
+    console.log(`PORT-${PORT}`);
 });
