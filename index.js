@@ -5,20 +5,22 @@ const cors = require('cors')
 const cloudinary = require('cloudinary')
 const multer = require('multer')
 const fs = require('fs');
-const path = require('path');
+// const path = require('path');
+const PORT = process.env.PORT || 8000
+const DATA_BASE = process.env.DATA_BASE
 
-app.use(express.static(path.join(__dirname, 'build')));
+// app.use(express.static(path.join(__dirname, 'build')));
 
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
+// app.get('/admin', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'build', 'index.html'));
+// });
 
 mongoose.set('strictQuery', false);
 
 // Database Connection
 async function main() {
     try {
-        await mongoose.connect('mongodb+srv://pnaruka054:Premsing1@cluster0.jkuhz8a.mongodb.net/Userdatabase');
+        await mongoose.connect(DATA_BASE);
         console.log('Database connected successfully');
     } catch (err) {
         console.error(err);
@@ -440,6 +442,6 @@ app.delete('/deleteFooterAddedData/:id', async (req, res) => {
     }
 })
 
-app.listen(8000, () => {
+app.listen(PORT, () => {
     console.log('Server started on port 8000');
 });
