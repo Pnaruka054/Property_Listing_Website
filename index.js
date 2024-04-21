@@ -5,11 +5,11 @@ const cors = require('cors')
 const cloudinary = require('cloudinary')
 const multer = require('multer')
 const fs = require('fs');
+const path = require('path')
+const PORT = process.env.PORT || 8000
 require('dotenv').config()
 
 mongoose.set('strictQuery', false);
-
-console.log(process.env.DATA_BASE)
 
 // Database Connection
 async function main() {
@@ -48,6 +48,23 @@ app.use(express.json());
 app.use(cors())
 
 // All CRUD Operations
+
+app.get('/', async (req, res) => {
+    try {
+        app.use(express.static(path.resolve(__dirname, 'build')))
+        res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
+    } catch (error) {
+        console.log(error)
+    }
+})
+app.get('/admin', async (req, res) => {
+    try {
+        res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
+    } catch (error) {
+        console.log(error)
+    }
+})
+
 app.get('/get', async (req, res) => {
     try {
         let data = await Model.find();
@@ -436,6 +453,6 @@ app.delete('/deleteFooterAddedData/:id', async (req, res) => {
     }
 })
 
-app.listen(8000, () => {
+app.listen(PORT, () => {
     console.log('Server started on port 8000');
 });
