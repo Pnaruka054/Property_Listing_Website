@@ -117,9 +117,9 @@ const upload = multer({
 
 // cloudinary
 cloudinary.config({
-    cloud_name: 'dm8miilli',
-    api_key: '929647272141149',
-    api_secret: 'XBp_hJ-WDm8-WGoe384oAtFP49o'
+    cloud_name: process.CLOUD_NAME,
+    api_key: process.API_KEY,
+    api_secret: process.API_SECRET
 })
 
 function cleanupUploadedFiles(directory) {
