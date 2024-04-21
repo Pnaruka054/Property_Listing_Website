@@ -5,22 +5,16 @@ const cors = require('cors')
 const cloudinary = require('cloudinary')
 const multer = require('multer')
 const fs = require('fs');
-// const path = require('path');
-const PORT = process.env.PORT || 8000
-const DATA_BASE = process.env.DATA_BASE
-
-// app.use(express.static(path.join(__dirname, 'build')));
-
-// app.get('/admin', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'build', 'index.html'));
-// });
+require('dotenv').config()
 
 mongoose.set('strictQuery', false);
+
+console.log(process.env.DATA_BASE)
 
 // Database Connection
 async function main() {
     try {
-        await mongoose.connect(DATA_BASE);
+        await mongoose.connect(process.env.DATA_BASE);
         console.log('Database connected successfully');
     } catch (err) {
         console.error(err);
@@ -117,9 +111,9 @@ const upload = multer({
 
 // cloudinary
 cloudinary.config({
-    cloud_name: process.CLOUD_NAME,
-    api_key: process.API_KEY,
-    api_secret: process.API_SECRET
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret: process.env.API_SECRET
 })
 
 function cleanupUploadedFiles(directory) {
@@ -442,6 +436,6 @@ app.delete('/deleteFooterAddedData/:id', async (req, res) => {
     }
 })
 
-app.listen(PORT, () => {
+app.listen(8000, () => {
     console.log('Server started on port 8000');
 });
