@@ -196,19 +196,22 @@ app.post('/postFooter', upload.fields([{ name: 'Image' }]), async (req, res) => 
 
 app.patch('/patch/:id', upload.fields([{ name: 'ProjectImage' }, { name: 'ProfileLogo' }]), async (req, res) => {
     try {
-        let ProjectImagePublic_id = req.query.ProjectImage
-        let ProfileLogoPublic_id = req.query.ProfileLogo
-        cloudinary.uploader.destroy(ProjectImagePublic_id, function (result) { console.log(result) });
-        cloudinary.uploader.destroy(ProfileLogoPublic_id, function (result) { console.log(result) });
+        let ProjectImagePublic_id = req.query.ProjectImage;
+        let ProfileLogoPublic_id = req.query.ProfileLogo;
+        
+        // Cloudinary se images delete karne ke liye callback function ko async-await mein convert karein
+        await cloudinary.uploader.destroy(ProjectImagePublic_id);
+        await cloudinary.uploader.destroy(ProfileLogoPublic_id);
 
-        let id = req.params.id
-        const ProjectImage = req.files['ProjectImage'][0].path
-        const ProfileLogo = req.files['ProfileLogo'][0].path
+        let id = req.params.id;
+        const ProjectImage = req.files['ProjectImage'][0].path;
+        const ProfileLogo = req.files['ProfileLogo'][0].path;
 
-        const uploadResult = await cloudinary.uploader.upload(ProjectImage);
+        // Image upload operations ko try-catch mein rakhein
+        let uploadResult = await cloudinary.uploader.upload(ProjectImage);
         const profileImageUrl = uploadResult.secure_url;
 
-        const uploadResult1 = await cloudinary.uploader.upload(ProfileLogo);
+        let uploadResult1 = await cloudinary.uploader.upload(ProfileLogo);
         const profileImageUrl1 = uploadResult1.secure_url;
 
         const updatedData = {
@@ -221,10 +224,12 @@ app.patch('/patch/:id', upload.fields([{ name: 'ProjectImage' }, { name: 'Profil
             projectDiscription: req.body.projectDiscription
         };
 
+        // Database update operation ko bhi try-catch mein rakhein
         const result = await FirstProjectModel.findOneAndUpdate({ _id: id }, updatedData, { new: true });
         res.json(result);
-        cleanupUploadedFiles('./uploads');
+        // cleanupUploadedFiles('./uploads'); // cleanupUploadedFiles function ko comment out kar diya hai
     } catch (err) {
+        console.error(err); // Error ko console par log karein
         res.status(500).send("Error updating document");
     }
 });
