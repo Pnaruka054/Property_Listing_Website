@@ -46,9 +46,6 @@ const ModelFooter = mongoose.model('footer_data', Schema)
 // All Middleware
 app.use(express.json());
 app.use(cors())
-
-// All CRUD Operations
-
 app.use(express.static(path.resolve(__dirname, 'build')));
 
 // All CRUD Operations
@@ -136,13 +133,12 @@ function cleanupUploadedFiles(directory) {
         }
         files.forEach(file => {
             const filePath = `${directory}/${file}`;
-            fs.unlink(filePath, (err) => {
-                if (err) {
-                    console.error("Error deleting file:", err);
-                } else {
-                    console.log(`File ${filePath} deleted successfully.`);
-                }
-            });
+            try {
+                fs.unlinkSync(filePath);
+                console.log(`File ${filePath} deleted successfully.`);
+            } catch (err) {
+                console.error("Error deleting file:", err);
+            }
         });
     });
 }
