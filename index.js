@@ -119,7 +119,7 @@ const upload = multer({
 })
 
 // cloudinary
-cloudinary.config({
+cloudinary.v2.config({
     cloud_name: process.env.CLOUD_NAME,
     api_key: process.env.API_KEY,
     api_secret: process.env.API_SECRET
@@ -148,10 +148,10 @@ app.post('/post', upload.fields([{ name: 'ProjectImage' }, { name: 'ProfileLogo'
         const ProjectImage = req.files['ProjectImage'][0].path
         const ProfileLogo = req.files['ProfileLogo'][0].path
 
-        const uploadResult = await cloudinary.uploader.upload(ProjectImage);
+        const uploadResult = await cloudinary.v2.uploader.upload(ProjectImage);
         const profileImageUrl = uploadResult.secure_url;
 
-        const uploadResult1 = await cloudinary.uploader.upload(ProfileLogo);
+        const uploadResult1 = await cloudinary.v2.uploader.upload(ProfileLogo);
         const profileImageUrl1 = uploadResult1.secure_url;
 
         const updatedData = {
@@ -177,7 +177,7 @@ app.post('/postFooter', upload.fields([{ name: 'Image' }]), async (req, res) => 
     try {
         const Image = req.files['Image'][0].path
 
-        const uploadResult = await cloudinary.uploader.upload(Image);
+        const uploadResult = await cloudinary.v2.uploader.upload(Image);
         const ImageUrl = uploadResult.secure_url;
 
         const updatedData = {
@@ -198,17 +198,17 @@ app.patch('/patch/:id', upload.fields([{ name: 'ProjectImage' }, { name: 'Profil
     try {
         let ProjectImagePublic_id = req.query.ProjectImage
         let ProfileLogoPublic_id = req.query.ProfileLogo
-        cloudinary.uploader.destroy(ProjectImagePublic_id, function (result) { console.log(result) });
-        cloudinary.uploader.destroy(ProfileLogoPublic_id, function (result) { console.log(result) });
+        cloudinary.v2.uploader.destroy(ProjectImagePublic_id, function (result) { console.log(result) });
+        cloudinary.v2.uploader.destroy(ProfileLogoPublic_id, function (result) { console.log(result) });
 
         let id = req.params.id
         const ProjectImage = req.files['ProjectImage'][0].path
         const ProfileLogo = req.files['ProfileLogo'][0].path
 
-        const uploadResult = await cloudinary.uploader.upload(ProjectImage);
+        const uploadResult = await cloudinary.v2.uploader.upload(ProjectImage);
         const profileImageUrl = uploadResult.secure_url;
 
-        const uploadResult1 = await cloudinary.uploader.upload(ProfileLogo);
+        const uploadResult1 = await cloudinary.v2.uploader.upload(ProfileLogo);
         const profileImageUrl1 = uploadResult1.secure_url;
 
         const updatedData = {
@@ -260,16 +260,16 @@ app.patch('/patchEditAddedProject/:id', upload.fields([{ name: 'ProjectImage' },
     let profileImageUrl1
     if (req.files.ProjectImage !== undefined || req.files.ProfileLogo !== undefined) {
         if (req.files.ProjectImage !== undefined) {
-            cloudinary.uploader.destroy(ProjectImagePublic_id, function (result) { console.log(result) });
+            cloudinary.v2.uploader.destroy(ProjectImagePublic_id, function (result) { console.log(result) });
             const ProjectImage = req.files['ProjectImage'][0].path
-            const uploadResult = await cloudinary.uploader.upload(ProjectImage);
+            const uploadResult = await cloudinary.v2.uploader.upload(ProjectImage);
             profileImageUrl = uploadResult.secure_url;
         }
 
         if (req.files.ProfileLogo !== undefined) {
-            cloudinary.uploader.destroy(ProfileLogoPublic_id, function (result) { console.log(result) });
+            cloudinary.v2.uploader.destroy(ProfileLogoPublic_id, function (result) { console.log(result) });
             const ProfileLogo = req.files['ProfileLogo'][0].path
-            const uploadResult1 = await cloudinary.uploader.upload(ProfileLogo);
+            const uploadResult1 = await cloudinary.v2.uploader.upload(ProfileLogo);
             profileImageUrl1 = uploadResult1.secure_url;
         }
 
@@ -367,9 +367,9 @@ app.patch('/patchEditFooter/:id', upload.fields([{ name: 'Image' }]), async (req
     let profileImageUrl;
     if (req.files.Image !== undefined) {
 
-        cloudinary.uploader.destroy(ImagePublic_id, function (result) { console.log(result) });
+        cloudinary.v2.uploader.destroy(ImagePublic_id, function (result) { console.log(result) });
         const ProjectImage = req.files['Image'][0].path
-        const uploadResult = await cloudinary.uploader.upload(ProjectImage);
+        const uploadResult = await cloudinary.v2.uploader.upload(ProjectImage);
         profileImageUrl = uploadResult.secure_url;
     } else {
         console.log('nahi aayi image')
@@ -404,8 +404,8 @@ app.delete('/deleteAddedData/:id', async (req, res) => {
         let ProjectImagePublic_id = req.query.ProjectImage
         let ProfileLogoPublic_id = req.query.ProfileLogo
 
-        cloudinary.uploader.destroy(ProjectImagePublic_id, function (result) { console.log(result) });
-        cloudinary.uploader.destroy(ProfileLogoPublic_id, function (result) { console.log(result) });
+        cloudinary.v2.uploader.destroy(ProjectImagePublic_id, function (result) { console.log(result) });
+        cloudinary.v2.uploader.destroy(ProfileLogoPublic_id, function (result) { console.log(result) });
 
         let deletedData = await Model.findByIdAndDelete({ _id: id }, function (err, docs) {
             if (err) {
@@ -427,8 +427,8 @@ app.delete('/deleteFooterAddedData/:id', async (req, res) => {
         let ProjectImagePublic_id = req.query.ProjectImage
         let ProfileLogoPublic_id = req.query.ProfileLogo
 
-        cloudinary.uploader.destroy(ProjectImagePublic_id, function (result) { console.log(result) });
-        cloudinary.uploader.destroy(ProfileLogoPublic_id, function (result) { console.log(result) });
+        cloudinary.v2.uploader.destroy(ProjectImagePublic_id, function (result) { console.log(result) });
+        cloudinary.v2.uploader.destroy(ProfileLogoPublic_id, function (result) { console.log(result) });
 
         let deletedData = await ModelFooter.findByIdAndDelete({ _id: id }, function (err, docs) {
             if (err) {
