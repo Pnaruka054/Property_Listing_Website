@@ -118,6 +118,11 @@ app.get('/FooterGet', async (req, res) => {
 //     fileFilter: ImageFilter
 // })
 
+const upload = multer({
+    storage: multer.diskStorage({}),
+    limits: {fileSize:500000}
+})
+
 // cloudinary
 cloudinary.v2.config({
     cloud_name: process.env.CLOUD_NAME,
