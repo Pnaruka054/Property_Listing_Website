@@ -46,16 +46,16 @@ const ModelFooter = mongoose.model('footer_data', Schema)
 // All Middleware
 app.use(express.json());
 app.use(cors())
-// app.use(express.static(path.resolve(__dirname, 'build')));
+app.use(express.static(path.resolve(__dirname, 'build')));
 
-// // All CRUD Operations
+// All CRUD Operations
 // app.get('/', (req, res) => {
 //     res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
 // });
 
-// app.get('/admin', (req, res) => {
-//     res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
-// });
+app.get('/admin', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
+});
 
 app.get('/get', async (req, res) => {
     try {
@@ -113,14 +113,8 @@ app.get('/FooterGet', async (req, res) => {
 //     }
 // }
 
-// const upload = multer({
-//     storage: ImageConfig,
-//     fileFilter: ImageFilter
-// })
-
 const upload = multer({
     storage: multer.diskStorage({}),
-    limits: {fileSize:500000}
 })
 
 // cloudinary
