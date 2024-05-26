@@ -49,11 +49,11 @@ app.use(cors())
 app.use(express.static(path.resolve(__dirname, 'build')));
 
 // All CRUD Operations
-// app.get('/', (req, res) => {
-//     res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
-// });
+app.get('/', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
+});
 
-app.get('/*', (req, res) => {
+app.get('/admin', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
 });
 
