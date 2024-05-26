@@ -46,16 +46,16 @@ const ModelFooter = mongoose.model('footer_data', Schema)
 // All Middleware
 app.use(express.json());
 app.use(cors())
-app.use(express.static(path.resolve(__dirname, 'build')));
+// app.use(express.static(path.resolve(__dirname, 'build')));
 
-// All CRUD Operations
-app.get('/', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
-});
+// // All CRUD Operations
+// app.get('/', (req, res) => {
+//     res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
+// });
 
-app.get('/admin', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
-});
+// app.get('/admin', (req, res) => {
+//     res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
+// });
 
 app.get('/get', async (req, res) => {
     try {
@@ -98,25 +98,25 @@ app.get('/FooterGet', async (req, res) => {
 });
 
 // Storage
-const ImageConfig = multer.diskStorage({
-    destination: (req, file, callback) => {
-        callback(null, './uploads')
-    }
-})
+// const ImageConfig = multer.diskStorage({
+//     destination: (req, file, callback) => {
+//         callback(null, './uploads')
+//     }
+// })
 
 // ImageFilter
-const ImageFilter = (req, file, callback) => {
-    if (file.mimetype.startsWith('image')) {
-        callback(null, true)
-    } else {
-        callback(new Error('only image allows'))
-    }
-}
+// const ImageFilter = (req, file, callback) => {
+//     if (file.mimetype.startsWith('image')) {
+//         callback(null, true)
+//     } else {
+//         callback(new Error('only image allows'))
+//     }
+// }
 
-const upload = multer({
-    storage: ImageConfig,
-    fileFilter: ImageFilter
-})
+// const upload = multer({
+//     storage: ImageConfig,
+//     fileFilter: ImageFilter
+// })
 
 // cloudinary
 cloudinary.v2.config({
@@ -125,23 +125,23 @@ cloudinary.v2.config({
     api_secret: process.env.API_SECRET
 })
 
-function cleanupUploadedFiles(directory) {
-    fs.readdir(directory, 'utf-8', (err, files) => {
-        if (err) {
-            console.error("Error reading directory:", err);
-            return;
-        }
-        files.forEach(file => {
-            const filePath = `${directory}/${file}`;
-            try {
-                fs.unlinkSync(filePath);
-                console.log(`File ${filePath} deleted successfully.`);
-            } catch (err) {
-                console.error("Error deleting file:", err);
-            }
-        });
-    });
-}
+// function cleanupUploadedFiles(directory) {
+//     fs.readdir(directory, 'utf-8', (err, files) => {
+//         if (err) {
+//             console.error("Error reading directory:", err);
+//             return;
+//         }
+//         files.forEach(file => {
+//             const filePath = `${directory}/${file}`;
+//             try {
+//                 fs.unlinkSync(filePath);
+//                 console.log(`File ${filePath} deleted successfully.`);
+//             } catch (err) {
+//                 console.error("Error deleting file:", err);
+//             }
+//         });
+//     });
+// }
 
 app.post('/post', upload.fields([{ name: 'ProjectImage' }, { name: 'ProfileLogo' }]), async (req, res) => {
     try {
@@ -166,7 +166,7 @@ app.post('/post', upload.fields([{ name: 'ProjectImage' }, { name: 'ProfileLogo'
 
         const dataRecived = await Model(updatedData);
         let dataInserted = await dataRecived.save()
-        cleanupUploadedFiles('./uploads')
+        //cleanupUploadedFiles('./uploads')
         res.send(dataInserted);
     } catch (err) {
         res.json(err);
@@ -187,7 +187,7 @@ app.post('/postFooter', upload.fields([{ name: 'Image' }]), async (req, res) => 
         };
         const dataRecived = await ModelFooter(updatedData);
         let dataInserted = await dataRecived.save()
-        cleanupUploadedFiles('./uploads')
+        // cleanupUploadedFiles('./uploads')
         res.send(dataInserted);
     } catch (err) {
         res.json(err);
@@ -223,7 +223,7 @@ app.patch('/patch/:id', upload.fields([{ name: 'ProjectImage' }, { name: 'Profil
 
         const result = await FirstProjectModel.findOneAndUpdate({ _id: id }, updatedData, { new: true });
         res.json(result);
-        cleanupUploadedFiles('./uploads');
+       // cleanupUploadedFiles('./uploads');
     } catch (err) {
         res.status(500).send("Error updating document");
     }
@@ -357,7 +357,7 @@ app.patch('/patchEditAddedProject/:id', upload.fields([{ name: 'ProjectImage' },
 
     const result = await Model.findOneAndUpdate({ _id: id }, updatedData, { new: true });
     res.json(result);
-    cleanupUploadedFiles('./uploads');
+    // cleanupUploadedFiles('./uploads');
 })
 
 app.patch('/patchEditFooter/:id', upload.fields([{ name: 'Image' }]), async (req, res) => {
@@ -395,7 +395,7 @@ app.patch('/patchEditFooter/:id', upload.fields([{ name: 'Image' }]), async (req
 
     const result = await ModelFooter.findOneAndUpdate({ _id: id }, updatedData, { new: true });
     res.json(result);
-    cleanupUploadedFiles('./uploads');
+   // cleanupUploadedFiles('./uploads');
 })
 
 app.delete('/deleteAddedData/:id', async (req, res) => {
