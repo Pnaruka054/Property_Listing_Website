@@ -53,7 +53,7 @@ app.use(express.static(path.resolve(__dirname, 'build')));
 //     res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
 // });
 
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
 });
 
