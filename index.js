@@ -129,7 +129,7 @@ app.get('/FooterGet', async (req, res) => {
 });
 
 app.get('/*', (req, res) => {
-    res.send('<h1>!404 Sorry This Page Is Not Exist &#128542;</h1>')
+    res.send('<div style="display:flex;justify-content:center;align-items:center;height:100vh;width:100%">!404 Sorry This Page Is Not Exist &#128542;</div>')
 });
 
 // Storage
