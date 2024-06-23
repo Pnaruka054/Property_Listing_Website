@@ -128,6 +128,10 @@ app.get('/FooterGet', async (req, res) => {
     }
 });
 
+app.get('/*', (req, res) => {
+    res.send('<h1>!404 Sorry This Page Is Not Exist &#128542;</h1>')
+});
+
 // Storage
 // const ImageConfig = multer.diskStorage({
 //     destination: (req, file, callback) => {
