@@ -57,6 +57,10 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
 });
 
+app.get('/*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
+});
+
 app.get('/get', async (req, res) => {
     try {
         let data = await Model.find();
