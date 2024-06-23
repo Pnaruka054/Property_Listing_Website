@@ -71,7 +71,7 @@ app.get('/get', async (req, res) => {
     }
 });
 
-app.get('/view_all1', async (req, res) => {
+app.get('/view_alll', async (req, res) => {
     let query = req.query.search
     let query_array = query.split('+')
     let string = ''
