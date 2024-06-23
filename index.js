@@ -61,6 +61,10 @@ app.get('/view_all', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
 });
 
+app.get('/ProjectsDetailsPage/:id', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
+});
+
 app.get('/get', async (req, res) => {
     try {
         let data = await Model.find();
