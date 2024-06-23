@@ -67,6 +67,29 @@ app.get('/get', async (req, res) => {
     }
 });
 
+app.get('/view_all', async (req, res) => {
+    let query = req.query.search
+    let query_array = query.split('+')
+    let string = ''
+    for (i of query_array) {
+        string += i
+    }
+
+    let final_query = string.trimStart()
+    try {
+        let data = await Model.find({
+            $or: [
+                { Name: { $regex: final_query, $options: 'i' } },
+                { userName: { $regex: final_query, $options: 'i' } }
+            ]
+        });
+        res.send(data);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+});
+
 app.get('/getAdded', async (req, res) => {
     try {
         let data1 = await Model.find();
@@ -222,7 +245,7 @@ app.patch('/patch/:id', upload.fields([{ name: 'ProjectImage' }, { name: 'Profil
 
         const result = await FirstProjectModel.findOneAndUpdate({ _id: id }, updatedData, { new: true });
         res.json(result);
-       // cleanupUploadedFiles('./uploads');
+        // cleanupUploadedFiles('./uploads');
     } catch (err) {
         res.status(500).send("Error updating document");
     }
@@ -394,7 +417,7 @@ app.patch('/patchEditFooter/:id', upload.fields([{ name: 'Image' }]), async (req
 
     const result = await ModelFooter.findOneAndUpdate({ _id: id }, updatedData, { new: true });
     res.json(result);
-   // cleanupUploadedFiles('./uploads');
+    // cleanupUploadedFiles('./uploads');
 })
 
 app.delete('/deleteAddedData/:id', async (req, res) => {
